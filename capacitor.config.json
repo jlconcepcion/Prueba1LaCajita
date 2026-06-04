@@ -1,0 +1,18 @@
+{
+  "appId": "tv.lacajita.app",
+  "appName": "La Cajita TV",
+  "webDir": "dist",
+  "backgroundColor": "#11081f",
+  "android": {
+    "backgroundColor": "#11081f",
+    "overScrollDisabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#11081f",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    }
+  }
+}

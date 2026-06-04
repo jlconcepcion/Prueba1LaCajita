@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">La Cajita TV</string>
+    <string name="title_activity_main">La Cajita TV</string>
+    <string name="package_name">tv.lacajita.app</string>
+    <string name="custom_url_scheme">tv.lacajita.app</string>
+</resources>

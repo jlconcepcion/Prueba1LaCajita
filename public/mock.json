@@ -1,0 +1,65 @@
+{
+  "success": true,
+  "branding": {
+    "brand_color": "#ffaa00",
+    "church_name": "Mi TV"
+  },
+  "liveFeed": {
+    "id": 999,
+    "title": "Canal Principal en Vivo",
+    "thumbnail": "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=400&q=80",
+    "status": "active"
+  },
+  "heroContent": {
+    "id": 101,
+    "title": "Gran Estreno",
+    "thumbnail": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=800&q=80",
+    "description": "Una película increíble sobre hackers superando sistemas de seguridad mundial.",
+    "duration": 7200,
+    "is_series": false
+  },
+  "categories": [
+    {
+      "name": "Películas",
+      "content": [
+        {
+          "id": 102,
+          "title": "Matrix Renace",
+          "thumbnail": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80",
+          "description": "Descubre la matrix en esta nueva entrega.",
+          "duration": 5400,
+          "is_series": false
+        },
+        {
+          "id": 103,
+          "title": "Interestelar V",
+          "thumbnail": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80",
+          "description": "Viaje a través del universo.",
+          "duration": 8200,
+          "is_series": false
+        }
+      ]
+    },
+    {
+      "name": "Series",
+      "content": [
+        {
+          "id": 201,
+          "title": "El Hacker solitario",
+          "thumbnail": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=400&q=80",
+          "description": "Un genio informático...",
+          "is_series": true,
+          "episode_count": 12
+        },
+        {
+          "id": 202,
+          "title": "Misterios del código",
+          "thumbnail": "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=400&q=80",
+          "description": "Documental sobre programadores",
+          "is_series": true,
+          "episode_count": 5
+        }
+      ]
+    }
+  ]
+}
