@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Hls from "hls.js";
+import { sanitizeEmbed, isValidEmbedHtml } from "../utils/sanitize.js";
+import { validateEmbedUrl } from "../utils/validation.js";
+import { logger } from "../utils/logger.js";
 
 export default function PlaybackArea({ item, onProgress, onEnded }) {
   const videoRef   = useRef(null);
@@ -141,15 +144,17 @@ export default function PlaybackArea({ item, onProgress, onEnded }) {
   // Para episodios con embed_url el usuario deberá seleccionar el siguiente
   // episodio manualmente desde la lista.
   if (embed) {
-    if (embed.includes("<iframe") || embed.includes("<script")) {
-      const cleanEmbed = embed
-        .replace(/allowfullscreen(="")?/gi, "")
-        .replace(/webkitallowfullscreen(="")?/gi, "")
-        .replace(/mozallowfullscreen(="")?/gi, "")
-        .replace(/allow="([^"]*)"/gi, (match, p1) => {
-          const newAllow = p1.replace(/fullscreen/gi, "").replace(/;{2,}/g, ";").trim();
-          return "allow=\"${newAllow}\"";
-        });
+    if (isValidEmbedHtml(embed)) {
+      const cleanEmbed = sanitizeEmbed(embed);
+
+      if (!cleanEmbed) {
+        logger.warn('Embed HTML failed sanitization', { original: embed.substring(0, 100) });
+        return (
+          <div className="embed-error" style={{ width: "100%", height: "100%", background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p style={{ color: "#fff", textAlign: "center" }}>Contenido no disponible</p>
+          </div>
+        );
+      }
 
       return (
         <div
@@ -168,7 +173,16 @@ export default function PlaybackArea({ item, onProgress, onEnded }) {
       );
     }
 
-    // Embed URL → iframe
+    // Embed URL → iframe (with validation)
+    if (!validateEmbedUrl(embed)) {
+      logger.warn('Invalid embed URL', { url: embed });
+      return (
+        <div className="embed-error" style={{ width: "100%", height: "100%", background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <p style={{ color: "#fff", textAlign: "center" }}>URL de contenido inválida</p>
+        </div>
+      );
+    }
+
     const embedUrl = embed + (embed.includes("?") ? "&" : "?") + "autoplay=true";
     return (
       <div
@@ -181,6 +195,7 @@ export default function PlaybackArea({ item, onProgress, onEnded }) {
           style={{ width: "100%", height: "100%", border: "none" }}
           allow="autoplay"
           title={item.title || "player"}
+          sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
         />
         <button onClick={handleFullscreen} className="fullscreen-btn" aria-label="Pantalla completa">
           {embedFullscreen ? "✕" : "⛶"}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-
-const API_BASE = import.meta.env.VITE_API_BASE;
-const APP_ID   = import.meta.env.VITE_APP_ID;
+import { fetchFeed, ApiError } from "../utils/api.js";
+import { captureError } from "../utils/logger.js";
 
 export function useFeed() {
   const [data, setData]       = useState(null);
@@ -15,13 +14,16 @@ export function useFeed() {
       try {
         setLoading(true);
         setError(null);
-        const res  = await fetch(`${API_BASE}/feed.php?church=${APP_ID}&include_live=true`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        if (!json.success) throw new Error("API returned success: false");
+        const json = await fetchFeed();
         if (!cancelled) setData(json);
       } catch (e) {
-        if (!cancelled) setError(e.message);
+        if (!cancelled) {
+          const errorMessage = e instanceof ApiError
+            ? e.message
+            : "Error al cargar el contenido";
+          setError(errorMessage);
+          captureError(e, 'in useFeed');
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

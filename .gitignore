@@ -1,6 +1,53 @@
+# Dependencies
 node_modules/
+yarn.lock
+package-lock.json
+
+# Build outputs
 dist/
+build/
+*.apk
+*.aab
+*.aar
+
+# Environment variables (NEVER commit .env files)
 .env
-*.timestamp-*.mjs
+.env.local
+.env.*.local
+.env.production
+.env.staging
+
+# IDE & Editor
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*.iml
+
+# Build files
 android/.gradle/
 android/app/build/
+android/build/
+ios/Pods/
+ios/Podfile.lock
+*.timestamp-*.mjs
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Temporary files
+.cache/
+.temp/
+tmp/
+
+# Security & Credentials
+.aws/
+.ssh/
+*.pem
+*.key
+*.pfx
+*.jks
+keystore.properties

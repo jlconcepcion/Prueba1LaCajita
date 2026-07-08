@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">tvappbuilder.com</domain>
+        <domain includeSubdomains="true">fonts.googleapis.com</domain>
+        <domain includeSubdomains="true">fonts.gstatic.com</domain>
+
+        <!-- Pin certificates for API domain (production) -->
+        <pin-set expiration="2027-12-31">
+            <!-- These pins should be updated with your actual certificate pins -->
+            <!-- Get pins by: openssl s_client -servername tvappbuilder.com -connect tvappbuilder.com:443 -->
+            <!-- Then use: echo | openssl s_client -servername tvappbuilder.com -connect tvappbuilder.com:443 2>/dev/null | openssl x509 -noout -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64 -->
+        </pin-set>
+    </domain-config>
+
+    <!-- Localhost for development -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { fetchEpisodes, ApiError } from "../utils/api.js";
+import { captureError } from "../utils/logger.js";
 
 export function useEpisodes() {
   const episodeCache = useRef(new Map());
@@ -12,13 +12,13 @@ export function useEpisodes() {
       return episodeCache.current.get(seriesId);
     }
     try {
-      const res  = await fetch(`${API_BASE}/episodes.php?series_id=${seriesId}`);
-      const data = await res.json();
+      const data = await fetchEpisodes(seriesId);
       const raw  = (data.success && data.episodes) ? data.episodes : [];
       const eps  = [...raw].sort((a, b) => (b.episode_number ?? 0) - (a.episode_number ?? 0));
       episodeCache.current.set(seriesId, eps);
       return eps;
-    } catch {
+    } catch (error) {
+      captureError(error, `in useEpisodes for series ${seriesId}`);
       return [];
     }
   }, []);

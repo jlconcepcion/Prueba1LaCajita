@@ -7,6 +7,8 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import com.getcapacitor.BridgeActivity;
@@ -45,6 +47,25 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    private void configureWebViewSecurity(WebView webView) {
+        webView.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        webView.getSettings().setAllowFileAccess(false);
+        webView.getSettings().setAllowContentAccess(false);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setDatabaseEnabled(false);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(false);
+        }
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onReceivedSslError(WebView view, android.webkit.SslErrorHandler handler, android.net.http.SslError error) {
+                handler.cancel();
+            }
+        });
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -58,9 +79,9 @@ public class MainActivity extends BridgeActivity {
 
         applyImmersiveMode();
 
-        // Limpiar caché del WebView para que cada nueva instalación del APK
-        // sirva los assets más recientes sin interferencia de versiones anteriores.
-        getBridge().getWebView().clearCache(true);
+        WebView webView = getBridge().getWebView();
+        configureWebViewSecurity(webView);
+        webView.clearCache(true);
 
         getBridge().getWebView().setWebChromeClient(new BridgeWebChromeClient(getBridge()) {
             @Override
