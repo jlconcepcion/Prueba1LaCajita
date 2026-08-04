@@ -49,22 +49,8 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void configureWebViewSecurity(WebView webView) {
-        webView.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW);
-        webView.getSettings().setAllowFileAccess(false);
-        webView.getSettings().setAllowContentAccess(false);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setDatabaseEnabled(false);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(false);
-        }
-
-        webView.setWebViewClient(new BridgeWebViewClient(getBridge()) {
-            @Override
-            public void onReceivedSslError(WebView view, android.webkit.SslErrorHandler handler, android.net.http.SslError error) {
-                handler.cancel();
-            }
-        });
+        webView.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
     }
 
     @Override
@@ -82,7 +68,6 @@ public class MainActivity extends BridgeActivity {
 
         WebView webView = getBridge().getWebView();
         configureWebViewSecurity(webView);
-        webView.clearCache(true);
 
         getBridge().getWebView().setWebChromeClient(new BridgeWebChromeClient(getBridge()) {
             @Override
