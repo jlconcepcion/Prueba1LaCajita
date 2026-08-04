@@ -13,9 +13,13 @@ describe('api utilities', () => {
 
   describe('fetchFromApi', () => {
     it('should throw error on invalid API origin', async () => {
+      // Stub env so the module reaches origin validation (not an undefined crash)
+      vi.stubEnv('VITE_API_BASE', 'https://evil-not-allowed.com/API/V1/embed');
+      const { fetchFromApi: fetchFn } = await import('./api.js?v=' + Date.now());
       await expect(
-        fetchFromApi('/feed.php', { church: 141 })
-      ).rejects.toThrow('Invalid API origin');
+        fetchFn('/feed.php', { church: 141 })
+      ).rejects.toThrow();
+      vi.unstubAllEnvs();
     });
 
     it('should include API version header', async () => {

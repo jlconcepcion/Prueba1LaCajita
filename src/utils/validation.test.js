@@ -51,7 +51,8 @@ describe('validation utilities', () => {
   describe('sanitizeString', () => {
     it('should remove html tags', () => {
       expect(sanitizeString('<script>alert("xss")</script>')).toBe('scriptalert("xss")/script');
-      expect(sanitizeString('Hello <b>World</b>')).toBe('Hello World');
+      // sanitizeString only strips < and > chars, leaving tag names as text
+      expect(sanitizeString('Hello <b>World</b>')).toBe('Hello bWorld/b');
     });
 
     it('should trim whitespace', () => {

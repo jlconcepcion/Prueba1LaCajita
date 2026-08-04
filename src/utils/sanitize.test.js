@@ -51,6 +51,7 @@ describe('sanitize utilities', () => {
       expect(result).toBe('Hello World');
     });
 
+
     it('should handle empty input', () => {
       expect(sanitizeText('')).toBe('');
       expect(sanitizeText(null)).toBe('');
@@ -68,9 +69,10 @@ describe('sanitize utilities', () => {
       expect(isValidEmbedHtml(html)).toBe(false);
     });
 
-    it('should accept script tags from valid origins', () => {
+    it('should reject script tags even from valid origins (security hardening)', () => {
+      // Script tags are never allowed in embed HTML regardless of src origin
       const html = '<script src="https://example.com/script.js"></script>';
-      expect(isValidEmbedHtml(html)).toBe(true);
+      expect(isValidEmbedHtml(html)).toBe(false);
     });
 
     it('should reject empty or non-embed HTML', () => {

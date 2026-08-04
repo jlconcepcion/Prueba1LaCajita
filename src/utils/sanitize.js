@@ -1,10 +1,9 @@
 import DOMPurify from 'dompurify';
 import { validateEmbedUrl } from './validation.js';
 
-const ALLOWED_TAGS = ['iframe', 'script', 'div', 'p', 'br', 'span'];
+const ALLOWED_TAGS = ['iframe', 'div', 'p', 'br', 'span'];
 const ALLOWED_ATTRIBUTES = {
   iframe: ['src', 'width', 'height', 'frameborder', 'allow', 'title'],
-  script: ['src', 'type'],
   '*': ['style'],
 };
 
@@ -12,9 +11,9 @@ const IFRAME_SANDBOX_ATTRIBUTES = 'allow-scripts allow-same-origin allow-popups 
 
 const CONFIG = {
   ALLOWED_TAGS,
-  ALLOWED_ATTR: ['src', 'width', 'height', 'frameborder', 'allow', 'title', 'type', 'style'],
+  ALLOWED_ATTR: ['src', 'width', 'height', 'frameborder', 'allow', 'title', 'style'],
   ALLOW_DATA_ATTR: false,
-  KEEP_CONTENT: true,
+  KEEP_CONTENT: false,
 };
 
 export function sanitizeEmbed(html) {
@@ -52,10 +51,11 @@ export function sanitizeText(text) {
 export function isValidEmbedHtml(html) {
   if (!html || typeof html !== 'string') return false;
 
-  const hasIframe = html.includes('<iframe');
-  const hasScript = html.includes('<script');
+  // Reject any embed containing inline scripts — no exceptions
+  if (html.includes('<script')) return false;
 
-  if (!hasIframe && !hasScript) return false;
+  const hasIframe = html.includes('<iframe');
+  if (!hasIframe) return false;
 
   const iframeRegex = /src=["']([^"']*)["']/g;
   let match;

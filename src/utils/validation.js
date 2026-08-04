@@ -18,9 +18,11 @@ export function isValidUrl(urlString) {
 export function isValidApiOrigin(urlString) {
   try {
     const url = new URL(urlString);
-    const hostname = url.hostname;
+    // url.host includes the port (e.g. "localhost:5173"); url.hostname does not
+    const host     = url.host;      // "localhost:5173"
+    const hostname = url.hostname;  // "localhost"
     return ALLOWED_ORIGINS.some(origin =>
-      hostname === origin || hostname.endsWith('.' + origin)
+      hostname === origin || host === origin || hostname.endsWith('.' + origin)
     );
   } catch {
     return false;
@@ -47,8 +49,10 @@ export function validateApiUrl(baseUrl, endpoint, params = {}) {
     throw new Error('Invalid API origin');
   }
 
-  const url = new URL(baseUrl);
-  url.pathname = endpoint;
+  // Preserve the base path (e.g. /API/V1/embed) and append the endpoint
+  const cleanBase = baseUrl.replace(/\/+$/, '');
+  const cleanEndpoint = endpoint.replace(/^\/+/, '');
+  const url = new URL(`${cleanBase}/${cleanEndpoint}`);
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
