@@ -55,7 +55,6 @@ export async function fetchFromApi(endpoint, params = {}) {
       response = await enqueueRequest(url, {
         signal: controller.signal,
         headers: {
-          'X-API-Version': API_VERSION,
           'Accept': 'application/json',
         },
       });

@@ -40,16 +40,59 @@ export default function PlaybackArea({ item, onProgress, onEnded }) {
     if (!src) return;
     const video = videoRef.current;
     if (!video) return;
-    const isHls = src.includes(".m3u8") || src.includes("manifest") || item.type === "live_feed";
+
+    const isHls = src.includes(".m3u8") || src.includes("manifest") || item.type === "live_feed" || (item.category && String(item.category).toLowerCase().includes("live"));
+    let hls = null;
+
     if (Hls.isSupported() && isHls) {
-      const hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60, enableWorker: true });
+      hls = new Hls({
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
+        enableWorker: false,
+        lowLatencyMode: true,
+      });
+
       hls.loadSource(src);
       hls.attachMedia(video);
-      return () => hls.destroy();
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(err => {
+          logger.warn("Auto-play prevented by browser policy", err);
+        });
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              logger.warn("HLS network error, attempting recovery...");
+              hls.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              logger.warn("HLS media error, attempting recovery...");
+              hls.recoverMediaError();
+              break;
+            default:
+              logger.warn("HLS unrecoverable error, switching to native video player...");
+              hls.destroy();
+              hls = null;
+              video.src = src;
+              video.play().catch(() => {});
+              break;
+          }
+        }
+      });
+
+      return () => {
+        if (hls) {
+          hls.destroy();
+        }
+      };
     } else {
       video.src = src;
+      video.play().catch(() => {});
     }
-  }, [src]);
+  }, [src, item]);
 
   // Real video progress tracking
   useEffect(() => {
