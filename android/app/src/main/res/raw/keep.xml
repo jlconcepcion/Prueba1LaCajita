@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  keep.xml — Resource shrinking exceptions for LaCajitaTV
+  Tells R8/shrinkResources to preserve splash screen drawables across all
+  density/orientation/night-mode qualifiers. Without this, shrinkResources
+  removes them because the static reference is only to @drawable/splash
+  (the base qualifier) and the density variants are seen as unused.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/splash,
+                @drawable-port-*/splash,
+                @drawable-land-*/splash,
+                @drawable-night/splash,
+                @mipmap/ic_launcher,
+                @mipmap/ic_launcher_foreground,
+                @mipmap/ic_launcher_round,
+                @mipmap/ic_launcher_background" />

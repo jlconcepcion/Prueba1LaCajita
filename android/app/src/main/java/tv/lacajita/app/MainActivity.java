@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.BridgeWebChromeClient;
+import com.getcapacitor.BridgeWebViewClient;
 
 public class MainActivity extends BridgeActivity {
 
@@ -58,7 +59,7 @@ public class MainActivity extends BridgeActivity {
             WebView.setWebContentsDebuggingEnabled(false);
         }
 
-        webView.setWebViewClient(new WebViewClient() {
+        webView.setWebViewClient(new BridgeWebViewClient(getBridge()) {
             @Override
             public void onReceivedSslError(WebView view, android.webkit.SslErrorHandler handler, android.net.http.SslError error) {
                 handler.cancel();
