@@ -40,8 +40,9 @@ export default function PlaybackArea({ item, onProgress, onEnded }) {
     if (!src) return;
     const video = videoRef.current;
     if (!video) return;
-    if (Hls.isSupported() && src.includes(".m3u8")) {
-      const hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60 });
+    const isHls = src.includes(".m3u8") || src.includes("manifest") || item.type === "live_feed";
+    if (Hls.isSupported() && isHls) {
+      const hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60, enableWorker: true });
       hls.loadSource(src);
       hls.attachMedia(video);
       return () => hls.destroy();
