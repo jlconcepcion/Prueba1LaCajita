@@ -9,6 +9,9 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "tv.lacajita.app"
     compileSdk = rootProject.ext.compileSdkVersion
+    buildFeatures {
+        buildConfig true
+    }
     defaultConfig {
         applicationId "tv.lacajita.app"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -36,6 +39,7 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

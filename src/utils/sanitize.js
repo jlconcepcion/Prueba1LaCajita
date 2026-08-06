@@ -7,7 +7,11 @@ const ALLOWED_ATTRIBUTES = {
   '*': ['style'],
 };
 
-const IFRAME_SANDBOX_ATTRIBUTES = 'allow-scripts allow-same-origin allow-popups allow-presentation';
+// Deliberately excludes "allow-same-origin": combined with "allow-scripts"
+// it lets an embedded document strip its own sandbox restrictions from the
+// inside, defeating the sandbox entirely. This value is always injected by
+// this module — it is never taken from (or overridable by) the source HTML.
+const IFRAME_SANDBOX_ATTRIBUTES = 'allow-scripts allow-popups allow-presentation';
 
 const CONFIG = {
   ALLOWED_TAGS,
@@ -25,6 +29,9 @@ export function sanitizeEmbed(html) {
     .replace(/allowfullscreen(="")?/gi, '')
     .replace(/webkitallowfullscreen(="")?/gi, '')
     .replace(/mozallowfullscreen(="")?/gi, '')
+    // Strip any sandbox attribute from the source — it must never be
+    // attacker/backend-controlled. A fixed, safe value is injected below.
+    .replace(/\ssandbox(="[^"]*")?/gi, '')
     .replace(/allow="([^"]*)"/gi, (match, p1) => {
       const newAllow = p1.replace(/fullscreen/gi, '').replace(/;{2,}/g, ';').trim();
       return newAllow ? `allow="${newAllow}"` : '';
@@ -32,12 +39,12 @@ export function sanitizeEmbed(html) {
 
   cleaned = DOMPurify.sanitize(cleaned, CONFIG);
 
-  const iframeRegex = /<iframe[^>]*src="([^"]*)"[^>]*>/gi;
-  cleaned = cleaned.replace(iframeRegex, (match, src) => {
+  const iframeRegex = /<iframe([^>]*)src="([^"]*)"([^>]*)>/gi;
+  cleaned = cleaned.replace(iframeRegex, (match, before, src, after) => {
     if (!validateEmbedUrl(src)) {
       return '';
     }
-    return match;
+    return `<iframe${before}src="${src}"${after} sandbox="${IFRAME_SANDBOX_ATTRIBUTES}">`;
   });
 
   return cleaned;

@@ -139,28 +139,30 @@
 - Storage operations
 - Error handling
 
-#### ✅ P3.2 - Android Security Hardening
-- **Status**: ✅ IMPLEMENTED
+#### ⚠️ P3.2 - Android Security Hardening
+- **Status**: ⚠️ PARTIALLY IMPLEMENTED — see `SECURITY_AUDIT.md` (2026-08-06) for the full audit and rationale.
 
-**MainActivity.java Changes**:
-- Added `configureWebViewSecurity()` method
-- Disabled cleartext traffic (`usesCleartextTraffic="false"`)
-- Disabled file access (`setAllowFileAccess(false)`)
-- Disabled content access (`setAllowContentAccess(false)`)
-- Disabled database (`setDatabaseEnabled(false)`)
-- Configured mixed content policy (never allow)
-- SSL error handling with certificate validation
-- Disabled WebView debugging in production
+The app plays arbitrary third-party IPTV/HLS sources whose domains are not
+known ahead of time and are sometimes HTTP-only. A full cleartext/mixed-content
+lockdown broke real playback (see commits `3a24c1e`, `b0de03e`), so the
+current posture is a deliberate, scoped trade-off rather than a full deny:
 
-**AndroidManifest.xml Changes**:
+**MainActivity.java** (`configureWebViewSecurity()`):
+- ✅ `setAllowFileAccess(false)`, `setAllowContentAccess(false)`, `setDatabaseEnabled(false)`
+- ✅ `setWebContentsDebuggingEnabled(BuildConfig.DEBUG)` — off in release, on in debug builds
+- ⚠️ Mixed content is `MIXED_CONTENT_ALWAYS_ALLOW`, **not** "never allow" — required for HTTP-only stream sources loaded from the HTTPS WebView shell
+- No custom SSL error handling is installed; this relies on the WebView's built-in default (`onReceivedSslError` not overridden → default behavior rejects invalid certificates). A previous custom override doing the same thing was removed in `3a24c1e` after it caused `net::ERR_CONNECTION_REFUSED` on localhost — do not reintroduce a custom `WebViewClient` for this without root-causing that first.
+
+**AndroidManifest.xml**:
 - `android:allowBackup="false"` - Prevent backup of sensitive data
-- Added `android:networkSecurityConfig` reference
-- `android:usesCleartextTraffic="false"` - Force HTTPS
+- `android:networkSecurityConfig` reference
+- ⚠️ `android:usesCleartextTraffic="true"` — this is the pre-API24 fallback only; on this app's `minSdk` (24) `network_security_config.xml` is authoritative
 
-**New File**: `android/app/src/main/res/xml/network_security_config.xml`
-- Domain-based cleartext traffic control
-- Certificate pinning configuration (ready for production)
-- Separate dev/prod configurations
+**`android/app/src/main/res/xml/network_security_config.xml`**:
+- ✅ `tvappbuilder.com` + Google Fonts domains are HTTPS-only (`cleartextTrafficPermitted="false"`) — this is the channel that supplies `embed_url`/`stream_url`, so it's the highest-value place to force HTTPS
+- ⚠️ `localhost`/`127.0.0.1` cleartext allowed for dev
+- ⚠️ Everything else (arbitrary stream hosts) defaults to cleartext permitted — accepted, documented risk, not certificate-pinned
+- ❌ No certificate pinning implemented (no `pin-set` configured; "ready for production" below never materialized)
 
 #### ✅ P3.3 - API Versioning
 - **Status**: ✅ IMPLEMENTED
@@ -323,6 +325,6 @@ For security issues or questions:
 
 ---
 
-**Last Updated**: 2026-07-08
-**Security Review**: Comprehensive
-**Status**: Production Ready with Recommendations
+**Last Updated**: 2026-08-06
+**Security Review**: See `SECURITY_AUDIT.md` for the full 2026-08-06 audit (findings C-1 through B-5) and what was remediated in that pass: iframe sandbox hardening (removed `allow-same-origin`), domain-scoped `network_security_config.xml`, restored WebView hardening (file/content/database access, conditional debug logging), CSP `script-src` without `unsafe-inline`, SSRF guard on embed URLs, dompurify updated, `proguardFiles` declared, repo cleanup.
+**Status**: Hardened for the app's real constraints (arbitrary third-party stream sources). Cleartext/mixed-content remain intentionally scoped-open for media playback — see P3.2 above.

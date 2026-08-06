@@ -6,7 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="LaCajitaTV — Tu app de televisión en vivo, series y canales favoritos." />
     <meta name="theme-color" content="#11081f" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: http: blob:; media-src 'self' https: http: data: blob:; frame-src 'self' https: http:; connect-src 'self' https: http: wss: ws: blob: data:; object-src 'none';" />
+    <!-- script-src has no 'unsafe-inline': the production bundle only loads
+         external module scripts, so inline script execution (e.g. via an
+         XSS payload) is blocked at the browser level. media-src/connect-src/
+         frame-src stay broad on purpose: the app aggregates arbitrary
+         third-party IPTV/embed sources whose domains aren't known ahead of
+         time (see SECURITY_AUDIT.md). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: http: blob:; media-src 'self' https: http: data: blob:; frame-src 'self' https: http:; connect-src 'self' https: http: wss: ws: blob: data:; object-src 'none';" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />

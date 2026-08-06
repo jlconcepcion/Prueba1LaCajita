@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- First-party domains (API + fonts): never allow plaintext HTTP here.
+         This is the channel that supplies embed_url/stream_url values, so
+         forcing HTTPS on it is the most effective mitigation against
+         man-in-the-middle injection of malicious embed content. -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">tvappbuilder.com</domain>
+        <domain includeSubdomains="true">fonts.googleapis.com</domain>
+        <domain includeSubdomains="true">fonts.gstatic.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- Localhost for local development server -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+
+    <!-- Default for everything else: the app aggregates arbitrary
+         third-party IPTV/streaming sources that are not known in advance
+         and sometimes only serve plain HTTP. Cleartext is intentionally
+         permitted here so playback keeps working; this is an accepted,
+         documented risk scoped to media hosts only (see SECURITY.md). -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />

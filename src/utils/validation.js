@@ -36,12 +36,47 @@ export function sanitizeString(str) {
     .trim();
 }
 
+// Blocks embeds pointing at the device's own local network (loopback,
+// RFC1918 private ranges, link-local/cloud-metadata addresses). Embed
+// content is JS-capable (see sanitize.js), so a compromised/MITM'd backend
+// shouldn't be able to point it at internal-only endpoints.
+function isPrivateOrLocalHost(hostname) {
+  const host = hostname.toLowerCase();
+  if (host === 'localhost' || host === '::1') return true;
+
+  // IPv4
+  const ipv4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4) {
+    const [a, b] = [parseInt(ipv4[1], 10), parseInt(ipv4[2], 10)];
+    if (a === 127) return true;                          // loopback
+    if (a === 10) return true;                            // 10.0.0.0/8
+    if (a === 172 && b >= 16 && b <= 31) return true;      // 172.16.0.0/12
+    if (a === 192 && b === 168) return true;               // 192.168.0.0/16
+    if (a === 169 && b === 254) return true;               // link-local / cloud metadata
+    if (a === 0) return true;                              // 0.0.0.0/8
+    return false;
+  }
+
+  // IPv6 unique-local / link-local
+  if (/^f[cd][0-9a-f]{2}:/i.test(host) || /^fe80:/i.test(host)) return true;
+
+  return false;
+}
+
 export function validateEmbedUrl(url) {
   if (!url || typeof url !== 'string') return false;
   if (!isValidUrl(url)) return false;
   const lowercased = url.toLowerCase();
-  return !lowercased.includes('javascript:') &&
-         !lowercased.includes('data:text/html');
+  if (lowercased.includes('javascript:') || lowercased.includes('data:text/html')) {
+    return false;
+  }
+  try {
+    const parsed = new URL(url);
+    if (isPrivateOrLocalHost(parsed.hostname)) return false;
+  } catch {
+    return false;
+  }
+  return true;
 }
 
 export function validateApiUrl(baseUrl, endpoint, params = {}) {

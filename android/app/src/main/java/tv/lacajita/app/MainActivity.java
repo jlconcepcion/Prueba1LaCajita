@@ -50,7 +50,22 @@ public class MainActivity extends BridgeActivity {
 
     private void configureWebViewSecurity(WebView webView) {
         webView.getSettings().setDomStorageEnabled(true);
+
+        // Required: the app plays arbitrary third-party IPTV/HLS sources,
+        // some of which are HTTP-only, from an HTTPS-hosted WebView shell.
+        // Blocking mixed content here breaks real playback (see commit
+        // b0de03e). The compensating control is network_security_config.xml
+        // forcing HTTPS on the first-party API/fonts domains, plus the
+        // iframe sandboxing in PlaybackArea/sanitize.js.
         webView.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+
+        // These do not affect network/media loading, only local file and
+        // content-provider access from JS, so they're safe to lock down.
+        webView.getSettings().setAllowFileAccess(false);
+        webView.getSettings().setAllowContentAccess(false);
+        webView.getSettings().setDatabaseEnabled(false);
+
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
     }
 
     @Override

@@ -239,7 +239,12 @@ export default function PlaybackArea({ item, onProgress, onEnded }) {
           style={{ width: "100%", height: "100%", border: "none" }}
           allow="autoplay"
           title={item.title || "player"}
-          sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"
+          // NOTE: intentionally no "allow-same-origin" alongside "allow-scripts".
+          // That combination lets an embedded document strip its own sandbox
+          // restrictions from the inside, which defeats the sandbox entirely.
+          // If a specific embed provider breaks without allow-same-origin,
+          // fix it for that provider only — don't restore it globally.
+          sandbox="allow-scripts allow-popups allow-presentation"
         />
         <button onClick={handleFullscreen} className="fullscreen-btn" aria-label="Pantalla completa">
           {embedFullscreen ? "✕" : "⛶"}

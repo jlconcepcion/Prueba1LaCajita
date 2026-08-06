@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
-    <cache-path name="my_cache_images" path="." />
+    <!-- Scoped to app-specific subdirectories only — never the storage root
+         ("."), which would grant access to the entire external/cache tree
+         to whoever a content:// URI from this provider is shared with. -->
+    <external-path name="my_images" path="Pictures/lacajita" />
+    <cache-path name="my_cache_images" path="images" />
 </paths>

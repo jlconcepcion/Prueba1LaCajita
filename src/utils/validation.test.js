@@ -82,6 +82,15 @@ describe('validation utilities', () => {
       expect(validateEmbedUrl('')).toBe(false);
       expect(validateEmbedUrl(null)).toBe(false);
     });
+
+    it('should reject embeds pointing at internal/private hosts (SSRF)', () => {
+      expect(validateEmbedUrl('http://localhost/admin')).toBe(false);
+      expect(validateEmbedUrl('http://127.0.0.1:8080')).toBe(false);
+      expect(validateEmbedUrl('http://192.168.1.1/')).toBe(false);
+      expect(validateEmbedUrl('http://10.0.0.5/')).toBe(false);
+      expect(validateEmbedUrl('http://172.16.0.1/')).toBe(false);
+      expect(validateEmbedUrl('http://169.254.169.254/latest/meta-data')).toBe(false);
+    });
   });
 
   describe('validateItemId', () => {

@@ -25,6 +25,9 @@ build/
 *.swo
 *.iml
 
+# Local tooling config (may contain machine-specific paths)
+.claude/settings.local.json
+
 # Build files
 android/.gradle/
 android/app/build/
